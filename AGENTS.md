@@ -1,6 +1,7 @@
 # AGENTS.md
 
-This project is governed by the Agentic Engineering Protocol (AEP) v1.12.
+This project is governed by the Agentic Engineering Protocol (AEP) v1.13,
+the latest canonical version.
 
 The canonical protocol document is referenced by this project's `opencode.json`
 `instructions` and lives at:
