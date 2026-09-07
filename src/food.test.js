@@ -4,6 +4,8 @@ import { Food } from "./food.js";
 
 const FLOOR_Y = -3.5;
 
+const TANK = { width: 12, height: 7, depth: 8 };
+
 function makeFood(y = 2) {
   return new Food(new THREE.Vector3(0, y, 0), () => 0.5);
 }
@@ -32,6 +34,14 @@ describe("Food", () => {
     const pellet = makeFood(2);
     for (let i = 0; i < 200; i++) pellet.update(0.1, FLOOR_Y);
     expect(pellet.sunk).toBe(true);
+  });
+
+  it("stays within the tank footprint while drifting", () => {
+    const pellet = new Food(new THREE.Vector3(TANK.width / 2 - 0.2, 2, 0), () => 0.95, TANK);
+    for (let i = 0; i < 200; i++) pellet.update(0.1, FLOOR_Y);
+    expect(pellet.pos.x).toBeLessThanOrEqual(TANK.width / 2 - 0.15);
+    expect(pellet.pos.z).toBeGreaterThanOrEqual(-TANK.depth / 2 + 0.15);
+    expect(pellet.pos.z).toBeLessThanOrEqual(TANK.depth / 2 - 0.15);
   });
 
   it("expires after its lifetime", () => {

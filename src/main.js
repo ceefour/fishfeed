@@ -59,7 +59,7 @@ function onPointerDown(event) {
 }
 
 function spawnFood(position) {
-  const f = new Food(position);
+  const f = new Food(position, undefined, aquarium.tank);
   food.push(f);
   scene.add(f.mesh);
 }

@@ -114,14 +114,15 @@ export class Aquarium {
 
   spawnPointForRay(ray, surfaceOffset = 0.5) {
     const { height } = this.tank;
-    const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), height / 2);
+    const surfaceY = height / 2 - surfaceOffset;
+    const surfacePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -surfaceY);
     const hit = new THREE.Vector3();
-    if (ray.intersectPlane(floorPlane, hit)) {
+    if (ray.intersectPlane(surfacePlane, hit)) {
       this.clampToBounds(hit);
     } else {
-      hit.set(0, -height / 2, 0);
+      hit.set(0, surfaceY, 0);
     }
-    hit.y = height / 2 - surfaceOffset;
+    hit.y = surfaceY;
     return hit;
   }
 }

@@ -38,7 +38,7 @@ describe("Aquarium.clampToBounds", () => {
 });
 
 describe("Aquarium.spawnPointForRay", () => {
-  it("spawns at the water surface above the ray's floor intersection", () => {
+  it("spawns on the water surface along the ray", () => {
     const aq = makeAquarium();
     const ray = new THREE.Ray(new THREE.Vector3(2, 5, 3), new THREE.Vector3(0, -1, 0));
     const p = aq.spawnPointForRay(ray);
@@ -47,7 +47,7 @@ describe("Aquarium.spawnPointForRay", () => {
     expect(p.y).toBe(aq.tank.height / 2 - 0.5);
   });
 
-  it("clamps the landing spot to the tank footprint", () => {
+  it("clamps the spawn point to the tank footprint", () => {
     const aq = makeAquarium();
     const ray = new THREE.Ray(new THREE.Vector3(50, 5, 0), new THREE.Vector3(0, -1, 0));
     const p = aq.spawnPointForRay(ray);
@@ -55,7 +55,7 @@ describe("Aquarium.spawnPointForRay", () => {
     expect(p.y).toBe(aq.tank.height / 2 - 0.5);
   });
 
-  it("falls back to center when the ray misses the floor plane", () => {
+  it("falls back to center when the ray misses the surface plane", () => {
     const aq = makeAquarium();
     const ray = new THREE.Ray(new THREE.Vector3(0, 5, 0), new THREE.Vector3(0, 0, -1));
     const p = aq.spawnPointForRay(ray);

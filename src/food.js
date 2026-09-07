@@ -1,10 +1,11 @@
 import * as THREE from "three";
 
 export class Food {
-  constructor(position, random = Math.random) {
+  constructor(position, random = Math.random, tank = null) {
     this.rng = random;
     this.eaten = false;
     this.sunk = false;
+    this.tank = tank;
 
     this.mesh = new THREE.Mesh(
       new THREE.SphereGeometry(0.12, 10, 10),
@@ -25,6 +26,11 @@ export class Food {
     this.vel.y -= 0.25 * dt;
     this.pos.add(this.vel.clone().multiplyScalar(dt));
     this.pos.y = Math.max(this.pos.y, floorY + 0.15);
+    if (this.tank) {
+      const m = 0.15;
+      this.pos.x = Math.max(-this.tank.width / 2 + m, Math.min(this.tank.width / 2 - m, this.pos.x));
+      this.pos.z = Math.max(-this.tank.depth / 2 + m, Math.min(this.tank.depth / 2 - m, this.pos.z));
+    }
     this.mesh.position.copy(this.pos);
     this.mesh.rotation.x += dt * 1.5;
     this.mesh.rotation.y += dt * 1.2;
