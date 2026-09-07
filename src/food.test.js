@@ -44,6 +44,19 @@ describe("Food", () => {
     expect(pellet.pos.z).toBeLessThanOrEqual(TANK.depth / 2 - 0.15);
   });
 
+  it("sinks toward and lands at its landing point", () => {
+    const pellet = new Food(
+      new THREE.Vector3(0, 3, 0),
+      () => 0.5,
+      TANK,
+      new THREE.Vector3(2, -3.5, 1)
+    );
+    for (let i = 0; i < 400; i++) pellet.update(0.05, FLOOR_Y);
+    expect(pellet.sunk).toBe(true);
+    expect(pellet.pos.x).toBeCloseTo(2, 1);
+    expect(pellet.pos.z).toBeCloseTo(1, 1);
+  });
+
   it("expires after its lifetime", () => {
     const pellet = makeFood(2);
     pellet.update(26, FLOOR_Y);

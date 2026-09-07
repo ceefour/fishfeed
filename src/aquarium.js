@@ -117,16 +117,27 @@ export class Aquarium {
   }
 
   spawnPointForRay(ray, surfaceOffset = 0.5) {
-    const { height } = this.tank;
+    const { width, height, depth } = this.tank;
+    const m = 0.5;
     const surfaceY = height / 2 - surfaceOffset;
     const surfacePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -surfaceY);
-    const hit = new THREE.Vector3();
-    if (ray.intersectPlane(surfacePlane, hit)) {
-      this.clampToBounds(hit);
-    } else {
-      hit.set(0, surfaceY, 0);
+    const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), height / 2);
+
+    const land = new THREE.Vector3();
+    if (!ray.intersectPlane(floorPlane, land)) {
+      land.set(0, -height / 2, 0);
     }
-    hit.y = surfaceY;
-    return hit;
+    land.x = Math.max(-width / 2 + m, Math.min(width / 2 - m, land.x));
+    land.z = Math.max(-depth / 2 + m, Math.min(depth / 2 - m, land.z));
+
+    const spawn = new THREE.Vector3();
+    if (!ray.intersectPlane(surfacePlane, spawn)) {
+      spawn.set(land.x, surfaceY, land.z);
+    }
+    spawn.x = Math.max(-width / 2 + m, Math.min(width / 2 - m, spawn.x));
+    spawn.z = Math.max(-depth / 2 + m, Math.min(depth / 2 - m, spawn.z));
+    spawn.y = surfaceY;
+
+    return { spawn, land };
   }
 }

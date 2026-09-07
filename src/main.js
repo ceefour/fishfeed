@@ -55,11 +55,12 @@ function onPointerDown(event) {
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(pointer, camera);
-  spawnFood(aquarium.spawnPointForRay(raycaster.ray));
+  const { spawn, land } = aquarium.spawnPointForRay(raycaster.ray);
+  spawnFood(spawn, land);
 }
 
-function spawnFood(position) {
-  const f = new Food(position, undefined, aquarium.tank);
+function spawnFood(position, landAt) {
+  const f = new Food(position, undefined, aquarium.tank, landAt);
   food.push(f);
   scene.add(f.mesh);
 }

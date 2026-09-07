@@ -25,9 +25,10 @@ session.
 2. An `Aquarium` builds the tank, lights, and decor; exposes `tank`
    dimensions and `obstacles` (rock, plant) used for bounds and avoidance.
 3. A fixed school of `Fish` entities is added to the scene.
-4. On pointer-down, the game computes a spawn point on the water surface
-   from the click ray (`Aquarium.spawnPointForRay`) and spawns a `Food`
-   pellet there.
+4. On pointer-down, the game computes a surface spawn point and a floor
+   landing point from the click ray (`Aquarium.spawnPointForRay`) and spawns
+   a `Food` pellet that appears at the cursor and homes toward the clicked
+   floor spot.
 5. Each frame: fish steer their body heading toward their current goal
    (nearest food pellet or a roaming destination) with a limited turn rate,
    avoid obstacles, and reflect off tank walls; pellets sink within tank

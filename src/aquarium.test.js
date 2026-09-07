@@ -38,29 +38,35 @@ describe("Aquarium.clampToBounds", () => {
 });
 
 describe("Aquarium.spawnPointForRay", () => {
-  it("spawns on the water surface along the ray", () => {
+  it("returns a surface spawn point and floor landing point on the ray", () => {
     const aq = makeAquarium();
     const ray = new THREE.Ray(new THREE.Vector3(2, 5, 3), new THREE.Vector3(0, -1, 0));
-    const p = aq.spawnPointForRay(ray);
-    expect(p.x).toBe(2);
-    expect(p.z).toBe(3);
-    expect(p.y).toBe(aq.tank.height / 2 - 0.5);
+    const { spawn, land } = aq.spawnPointForRay(ray);
+    expect(spawn.x).toBe(2);
+    expect(spawn.z).toBe(3);
+    expect(spawn.y).toBe(aq.tank.height / 2 - 0.5);
+    expect(land.x).toBe(2);
+    expect(land.z).toBe(3);
+    expect(land.y).toBe(-aq.tank.height / 2);
   });
 
-  it("clamps the spawn point to the tank footprint", () => {
+  it("clamps both spawn and landing points to the tank footprint", () => {
     const aq = makeAquarium();
     const ray = new THREE.Ray(new THREE.Vector3(50, 5, 0), new THREE.Vector3(0, -1, 0));
-    const p = aq.spawnPointForRay(ray);
-    expect(p.x).toBe(aq.tank.width / 2 - 0.5);
-    expect(p.y).toBe(aq.tank.height / 2 - 0.5);
+    const { spawn, land } = aq.spawnPointForRay(ray);
+    expect(spawn.x).toBe(aq.tank.width / 2 - 0.5);
+    expect(land.x).toBe(aq.tank.width / 2 - 0.5);
+    expect(spawn.y).toBe(aq.tank.height / 2 - 0.5);
   });
 
-  it("falls back to center when the ray misses the surface plane", () => {
+  it("falls back to center when the ray misses both planes", () => {
     const aq = makeAquarium();
     const ray = new THREE.Ray(new THREE.Vector3(0, 5, 0), new THREE.Vector3(0, 0, -1));
-    const p = aq.spawnPointForRay(ray);
-    expect(p.x).toBe(0);
-    expect(p.z).toBe(0);
-    expect(p.y).toBe(aq.tank.height / 2 - 0.5);
+    const { spawn, land } = aq.spawnPointForRay(ray);
+    expect(spawn.x).toBe(0);
+    expect(spawn.z).toBe(0);
+    expect(spawn.y).toBe(aq.tank.height / 2 - 0.5);
+    expect(land.x).toBe(0);
+    expect(land.z).toBe(0);
   });
 });
