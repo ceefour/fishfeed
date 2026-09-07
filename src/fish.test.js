@@ -105,4 +105,48 @@ describe("Fish", () => {
     pellet.eaten = true;
     expect(f.tryEat(pellet)).toBe(false);
   });
+
+  it("swims forward toward a destination when idle", () => {
+    const f = makeFish(0, 0, 0);
+    f.heading.set(0, 0, 1);
+    f.destination = new THREE.Vector3(4, 0, 0);
+    f.destTimer = 100;
+    for (let i = 0; i < 20; i++) f.update(0.1);
+    expect(f.pos.x).toBeGreaterThan(1);
+  });
+
+  it("rotates its body toward the destination", () => {
+    const f = makeFish(0, 0, 0);
+    f.heading.set(0, 0, 1);
+    f.destination = new THREE.Vector3(4, 0, 0);
+    for (let i = 0; i < 30; i++) f.update(0.016);
+    expect(f.heading.x).toBeGreaterThan(0.5);
+  });
+
+  it("swims constantly when idle instead of spinning in place", () => {
+    const f = makeFish(0, 0, 0);
+    let moved = 0;
+    let prev = f.pos.clone();
+    for (let i = 0; i < 300; i++) {
+      f.update(0.016);
+      moved += f.pos.distanceTo(prev);
+      prev.copy(f.pos);
+    }
+    expect(moved).toBeGreaterThan(5);
+  });
+
+  it("avoids obstacles while swimming", () => {
+    const rock = { position: new THREE.Vector3(0, 0, 0), radius: 1.0 };
+    const f = new Fish(TANK, () => 0.5, [rock]);
+    f.pos.set(2, 0, 0);
+    f.mesh.position.copy(f.pos);
+    f.heading.set(-1, 0, 0);
+    f.destination = new THREE.Vector3(-4, 0, 0);
+    let minDist = Infinity;
+    for (let i = 0; i < 300; i++) {
+      f.update(0.016);
+      minDist = Math.min(minDist, f.pos.distanceTo(rock.position));
+    }
+    expect(minDist).toBeGreaterThan(0.8);
+  });
 });

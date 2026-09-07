@@ -5,13 +5,14 @@ const PALETTE = [
 ];
 
 export class Fish {
-  constructor(tank, random = Math.random) {
+  constructor(tank, random = Math.random, obstacles = []) {
     this.tank = tank;
     this.rng = random;
+    this.obstacles = obstacles;
     this.color = PALETTE[Math.floor(random() * PALETTE.length)];
 
     this.speed = 1.2 + random() * 1.2;
-    this.turnSpeed = 1.5 + random() * 1.0;
+    this.turnSpeed = 1.5 + random() * 1.5;
 
     this.mesh = this.buildMesh();
 
@@ -23,11 +24,12 @@ export class Fish {
     this.mesh.position.copy(this.pos);
 
     const angle = random() * Math.PI * 2;
-    this.vel = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)).multiplyScalar(this.speed);
+    this.heading = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)).normalize();
 
     this.target = null;
+    this.destination = null;
+    this.destTimer = 0;
     this.wobble = random() * Math.PI * 2;
-    this.flip = random() < 0.5 ? -1 : 1;
   }
 
   buildMesh() {
@@ -87,54 +89,140 @@ export class Fish {
     return false;
   }
 
+  desiredDirection(goal) {
+    const desired = goal.clone().sub(this.pos);
+    if (desired.lengthSq() === 0) desired.set(0, 1, 0);
+    desired.normalize();
+    for (const ob of this.obstacles) {
+      const d = ob.position.distanceTo(this.pos);
+      const influence = ob.radius + 2.5;
+      if (d < influence && d > 0.001) {
+        const away = this.pos.clone().sub(ob.position);
+        away.y *= 0.3;
+        away.normalize();
+        const strength = Math.max(0, (influence - d) / influence) * 4;
+        desired.add(away.multiplyScalar(strength));
+      }
+    }
+    return desired.normalize();
+  }
+
+  steerToward(desired, dt) {
+    const maxStep = this.turnSpeed * dt;
+    const angle = this.heading.angleTo(desired);
+    if (angle <= maxStep) {
+      this.heading.copy(desired);
+    } else {
+      const axis = new THREE.Vector3().crossVectors(this.heading, desired);
+      if (axis.lengthSq() < 1e-8) {
+        const fallback = Math.abs(this.heading.y) > 0.99 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+        this.heading.applyAxisAngle(fallback, maxStep);
+      } else {
+        this.heading.applyAxisAngle(axis.normalize(), maxStep);
+      }
+    }
+  }
+
+  move(dt) {
+    this.pos.add(this.heading.clone().multiplyScalar(this.speed * dt));
+    this.clampToBounds();
+  }
+
+  syncMesh() {
+    this.mesh.position.copy(this.pos);
+    const angle = Math.atan2(-this.heading.z, this.heading.x);
+    this.mesh.rotation.y = angle;
+    this.mesh.rotation.z = Math.sin(this.wobble) * 0.2 - Math.asin(this.heading.y) * 0.6;
+    this.mesh.rotation.x = Math.sin(this.wobble * 0.5) * 0.12;
+  }
+
+  pickDestination() {
+    const { width, height, depth } = this.tank;
+    for (let i = 0; i < 10; i++) {
+      const x = (this.rng() * 2 - 1) * (width / 2 - 0.8);
+      const y = -height / 2 + 1.2 + this.rng() * (height - 2.4);
+      const z = (this.rng() * 2 - 1) * (depth / 2 - 0.8);
+      const p = new THREE.Vector3(x, y, z);
+      if (!this.insideObstacle(p)) {
+        this.destination = p;
+        return;
+      }
+    }
+    this.destination = null;
+  }
+
+  insideObstacle(p, margin = 0.7) {
+    for (const ob of this.obstacles) {
+      if (ob.position.distanceTo(p) < ob.radius + margin) return true;
+    }
+    return false;
+  }
+
   update(dt) {
     this.wobble += dt * 6;
 
-    if (this.target && this.target.eaten) {
-      this.target = null;
-    }
-
     if (this.target) {
-      const toTarget = this.target.pos.clone().sub(this.pos);
-      const dist = toTarget.length();
-      if (dist < 0.5) {
+      if (this.target.eaten) {
+        this.target = null;
+      } else if (this.pos.distanceTo(this.target.pos) < 0.5) {
         this.target = null;
       } else {
-        const desired = toTarget.normalize().multiplyScalar(this.speed * 1.6);
-        this.vel.lerp(desired, Math.min(1, this.turnSpeed * dt));
+        this.steerToward(this.desiredDirection(this.target.pos), dt);
+        this.move(dt);
+        this.syncMesh();
+        return;
       }
-    } else {
-      const wander = new THREE.Vector3(
-        Math.sin(this.wobble * 0.5 + this.pos.y * 0.1),
-        Math.sin(this.wobble * 0.7 + this.pos.x * 0.2) * 0.6,
-        Math.cos(this.wobble * 0.4)
-      );
-      this.vel.lerp(wander.normalize().multiplyScalar(this.speed), Math.min(1, 0.5 * dt));
     }
 
-    this.pos.add(this.vel.clone().multiplyScalar(dt));
-    this.clampToBounds();
-    this.mesh.position.copy(this.pos);
+    if (!this.destination || this.destTimer <= 0 || this.pos.distanceTo(this.destination) < 0.8) {
+      this.pickDestination();
+      this.destTimer = 4 + this.rng() * 4;
+    }
+    this.destTimer -= dt;
 
-    const forward = this.vel.clone().setY(0).normalize();
-    const angle = Math.atan2(forward.x, forward.z);
-    this.mesh.rotation.y = angle;
-    this.mesh.rotation.z = Math.sin(this.wobble) * 0.2;
-    this.mesh.rotation.x = Math.sin(this.wobble * 0.5) * 0.15;
-
-    const flip = forward.x >= 0 ? 1 : -1;
-    this.mesh.scale.x = Math.abs(this.mesh.scale.x) * flip;
+    if (this.destination) {
+      this.steerToward(this.desiredDirection(this.destination), dt);
+    } else {
+      this.steerToward(this.desiredDirection(new THREE.Vector3(0, 0.5, 0)), dt);
+    }
+    this.move(dt);
+    this.syncMesh();
   }
 
   clampToBounds() {
     const { width, height, depth } = this.tank;
     const m = 0.6;
-    this.pos.x = Math.max(-width / 2 + m, Math.min(width / 2 - m, this.pos.x));
-    this.pos.y = Math.max(-height / 2 + m, Math.min(height / 2 - m, this.pos.y));
-    this.pos.z = Math.max(-depth / 2 + m, Math.min(depth / 2 - m, this.pos.z));
-
-    if (this.pos.x <= -width / 2 + m + 0.01 || this.pos.x >= width / 2 - m - 0.01) this.vel.x *= -1;
-    if (this.pos.z <= -depth / 2 + m + 0.01 || this.pos.z >= depth / 2 - m - 0.01) this.vel.z *= -1;
-    if (this.pos.y <= -height / 2 + m + 0.01 || this.pos.y >= height / 2 - m - 0.01) this.vel.y *= -1;
+    let hit = false;
+    if (this.pos.x < -width / 2 + m) {
+      this.pos.x = -width / 2 + m;
+      this.heading.x = Math.abs(this.heading.x);
+      hit = true;
+    }
+    if (this.pos.x > width / 2 - m) {
+      this.pos.x = width / 2 - m;
+      this.heading.x = -Math.abs(this.heading.x);
+      hit = true;
+    }
+    if (this.pos.y < -height / 2 + m) {
+      this.pos.y = -height / 2 + m;
+      this.heading.y = Math.abs(this.heading.y);
+      hit = true;
+    }
+    if (this.pos.y > height / 2 - m) {
+      this.pos.y = height / 2 - m;
+      this.heading.y = -Math.abs(this.heading.y);
+      hit = true;
+    }
+    if (this.pos.z < -depth / 2 + m) {
+      this.pos.z = -depth / 2 + m;
+      this.heading.z = Math.abs(this.heading.z);
+      hit = true;
+    }
+    if (this.pos.z > depth / 2 - m) {
+      this.pos.z = depth / 2 - m;
+      this.heading.z = -Math.abs(this.heading.z);
+      hit = true;
+    }
+    if (hit) this.heading.normalize();
   }
 }

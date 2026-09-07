@@ -30,7 +30,7 @@ const aquarium = new Aquarium(scene);
 
 const fish = [];
 for (let i = 0; i < 8; i++) {
-  const f = new Fish(aquarium.tank);
+  const f = new Fish(aquarium.tank, undefined, aquarium.obstacles);
   fish.push(f);
   scene.add(f.mesh);
 }

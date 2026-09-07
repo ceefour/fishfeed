@@ -4,6 +4,7 @@ export class Aquarium {
   constructor(scene) {
     this.scene = scene;
     this.tank = { width: 12, height: 7, depth: 8 };
+    this.obstacles = [];
 
     this.buildLighting();
     this.buildTank();
@@ -90,6 +91,9 @@ export class Aquarium {
     }
     plant.position.set(width / 2 - 1.8, -this.tank.height / 2, depth / 2 - 1.4);
     this.scene.add(plant);
+
+    this.obstacles.push({ position: stone.position.clone(), radius: 1.1 });
+    this.obstacles.push({ position: plant.position.clone(), radius: 0.6 });
   }
 
   inBounds(x, y, z, margin = 0.4) {
