@@ -64,16 +64,28 @@ export class Fish {
     return group;
   }
 
-  feed(position) {
-    this.target = position.clone();
-    this.target.y = Math.min(this.target.y, this.tank.height * 0.3);
+  acquireTarget(food, range = 5) {
+    this.target = null;
+    let nearestDist = range;
+    for (const pellet of food) {
+      if (pellet.eaten) continue;
+      const d = this.pos.distanceTo(pellet.pos);
+      if (d < nearestDist) {
+        nearestDist = d;
+        this.target = pellet;
+      }
+    }
   }
 
   update(dt) {
     this.wobble += dt * 6;
 
+    if (this.target && this.target.eaten) {
+      this.target = null;
+    }
+
     if (this.target) {
-      const toTarget = this.target.clone().sub(this.pos);
+      const toTarget = this.target.pos.clone().sub(this.pos);
       const dist = toTarget.length();
       if (dist < 0.5) {
         this.target = null;
@@ -102,7 +114,6 @@ export class Fish {
 
     const flip = forward.x >= 0 ? 1 : -1;
     this.mesh.scale.x = Math.abs(this.mesh.scale.x) * flip;
-    return this.target;
   }
 
   clampToBounds() {

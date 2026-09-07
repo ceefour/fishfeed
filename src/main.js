@@ -86,10 +86,11 @@ function animate() {
   const dt = Math.min(clock.getDelta(), 0.05);
 
   fish.forEach((f) => {
-    const chasing = f.update(dt);
-    if (chasing) {
-      food.forEach((pellet) => eatIfClose(f, pellet));
+    if (!f.target || f.target.eaten) {
+      f.acquireTarget(food);
     }
+    f.update(dt);
+    food.forEach((pellet) => eatIfClose(f, pellet));
   });
 
   const floorY = -aquarium.tank.height / 2;
