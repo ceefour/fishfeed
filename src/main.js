@@ -58,7 +58,7 @@ function onPointerDown(event) {
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), aquarium.tank.height / 2 - 1);
   const point = new THREE.Vector3();
   if (raycaster.ray.intersectPlane(plane, point)) {
-    spawnFood(point);
+    spawnFood(aquarium.clampToBounds(point));
   }
 }
 

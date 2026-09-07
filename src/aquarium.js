@@ -100,4 +100,12 @@ export class Aquarium {
       z < depth / 2 - margin
     );
   }
+
+  clampToBounds(point, margin = 0.5) {
+    const { width, height, depth } = this.tank;
+    point.x = Math.max(-width / 2 + margin, Math.min(width / 2 - margin, point.x));
+    point.y = Math.max(-height / 2 + margin, Math.min(height / 2 - margin, point.y));
+    point.z = Math.max(-depth / 2 + margin, Math.min(depth / 2 - margin, point.z));
+    return point;
+  }
 }
