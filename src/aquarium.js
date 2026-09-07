@@ -42,6 +42,9 @@ export class Aquarium {
     const floorMat = new THREE.MeshStandardMaterial({
       color: 0x2c4a3a,
       roughness: 0.9,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
     });
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(width, depth),
