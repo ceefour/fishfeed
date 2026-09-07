@@ -55,11 +55,7 @@ function onPointerDown(event) {
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(pointer, camera);
-  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), aquarium.tank.height / 2 - 1);
-  const point = new THREE.Vector3();
-  if (raycaster.ray.intersectPlane(plane, point)) {
-    spawnFood(aquarium.clampToBounds(point));
-  }
+  spawnFood(aquarium.spawnPointForRay(raycaster.ray));
 }
 
 function spawnFood(position) {
