@@ -63,3 +63,11 @@ session.
   floor clamping, lifetime, disposal; aquarium spawn-point and clamp helpers.
 - The eat interaction is a pure method (`Fish.tryEat`) so it is testable
   without a DOM/canvas; browser rendering is verified manually via `npm run dev`.
+
+## Deployment
+
+- Hosting: Cloudflare Pages (production: https://fishfeed-3ha.pages.dev).
+- Authoritative Git source: `origin` → https://github.com/ceefour/fishfeed
+  (`main`).
+- Build settings: build command `npm run build`, output directory `dist`.
+- Git-connected deploys: pushing to `main` auto-deploys to production.
