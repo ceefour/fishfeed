@@ -1,0 +1,89 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a1520;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+#app {
+  position: relative;
+}
+
+#scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hud-top {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.score {
+  color: #fff;
+  font-size: 20px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 8px 16px;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+
+.score .label {
+  opacity: 0.7;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+#reset {
+  pointer-events: auto;
+  cursor: pointer;
+  font-size: 15px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 8px 18px;
+  backdrop-filter: blur(4px);
+}
+
+#reset:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.hint {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+}

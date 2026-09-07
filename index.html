@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FishFeed — 3D Fish Feeding Game</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+      <div id="hud">
+        <div class="hud-top">
+          <div class="score">
+            <span class="label">Score</span>
+            <span id="score">0</span>
+          </div>
+          <button id="reset" title="Reset game">Reset</button>
+        </div>
+        <div id="hint" class="hint">Click anywhere in the tank to drop food</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
