@@ -116,6 +116,16 @@ export class Aquarium {
     return point;
   }
 
+  randomSpawnPoint(random = Math.random) {
+    const { width, height, depth } = this.tank;
+    const m = 0.8;
+    const x = (random() * 2 - 1) * (width / 2 - m);
+    const z = (random() * 2 - 1) * (depth / 2 - m);
+    const spawn = new THREE.Vector3(x, height / 2 - 0.5, z);
+    const land = new THREE.Vector3(x, -height / 2, z);
+    return { spawn, land };
+  }
+
   spawnPointForRay(ray, surfaceOffset = 0.5) {
     const { width, height, depth } = this.tank;
     const m = 0.5;

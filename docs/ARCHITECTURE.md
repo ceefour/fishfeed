@@ -25,10 +25,10 @@ session.
 2. An `Aquarium` builds the tank, lights, and decor; exposes `tank`
    dimensions and `obstacles` (rock, plant) used for bounds and avoidance.
 3. A fixed school of `Fish` entities is added to the scene.
-4. On pointer-down, the game computes a surface spawn point and a floor
-   landing point from the click ray (`Aquarium.spawnPointForRay`) and spawns
-   a `Food` pellet that appears at the cursor and homes toward the clicked
-   floor spot.
+4. Input is tap-based: a pointer press followed by a short, low-movement
+   release drops a `Food` pellet at the computed surface/floor points
+   (`Aquarium.spawnPointForRay`); drags are left to the camera controls. The
+   HUD "Feed" button uses `Aquarium.randomSpawnPoint()`.
 5. Each frame: fish steer their body heading toward their current goal
    (nearest food pellet or a roaming destination) with a limited turn rate,
    avoid obstacles, and reflect off tank walls; pellets sink within tank
@@ -50,6 +50,9 @@ session.
 - `dt` is clamped to avoid large-frame jumps.
 - Deterministic-ish random injected via `random` param (default `Math.random`)
   to permit testing.
+- Mobile: canvas uses `touch-action: none`, viewport disables pinch/zoom, and
+  HUD controls use safe-area insets and touch-sized targets; `OrbitControls`
+  handles touch rotate/zoom/pan.
 
 ## Testing
 

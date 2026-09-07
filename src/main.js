@@ -48,8 +48,9 @@ function updateScore() {
   scoreEl.textContent = score;
 }
 
-function onPointerDown(event) {
-  if (!running) return;
+let tapStart = null;
+
+function dropFoodAt(event) {
   const rect = renderer.domElement.getBoundingClientRect();
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -101,7 +102,30 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-renderer.domElement.addEventListener("pointerdown", onPointerDown);
+renderer.domElement.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+  tapStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+});
+
+renderer.domElement.addEventListener("pointerup", (event) => {
+  if (!tapStart || tapStart.id !== event.pointerId) return;
+  const dx = event.clientX - tapStart.x;
+  const dy = event.clientY - tapStart.y;
+  if (Math.hypot(dx, dy) < 10 && running) {
+    dropFoodAt(event);
+  }
+  tapStart = null;
+});
+
+renderer.domElement.addEventListener("pointercancel", () => {
+  tapStart = null;
+});
+
+document.getElementById("feed").addEventListener("click", () => {
+  if (!running) return;
+  const { spawn, land } = aquarium.randomSpawnPoint();
+  spawnFood(spawn, land);
+});
 
 document.getElementById("reset").addEventListener("click", () => {
   score = 0;

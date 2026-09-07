@@ -6,6 +6,19 @@ function makeAquarium() {
   return new Aquarium(new THREE.Scene());
 }
 
+describe("Aquarium.randomSpawnPoint", () => {
+  it("returns spawn and landing points inside the tank footprint", () => {
+    const aq = makeAquarium();
+    const { spawn, land } = aq.randomSpawnPoint(() => 0.5);
+    expect(spawn.y).toBe(aq.tank.height / 2 - 0.5);
+    expect(land.y).toBe(-aq.tank.height / 2);
+    expect(Math.abs(spawn.x)).toBeLessThanOrEqual(aq.tank.width / 2 - 0.8);
+    expect(Math.abs(spawn.z)).toBeLessThanOrEqual(aq.tank.depth / 2 - 0.8);
+    expect(spawn.x).toBe(land.x);
+    expect(spawn.z).toBe(land.z);
+  });
+});
+
 describe("Aquarium.clampToBounds", () => {
   it("clamps points beyond the tank width", () => {
     const aq = makeAquarium();
