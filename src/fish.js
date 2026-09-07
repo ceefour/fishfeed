@@ -77,6 +77,16 @@ export class Fish {
     }
   }
 
+  tryEat(pellet, radius = 1.0) {
+    if (pellet.eaten) return false;
+    const dist = this.pos.distanceTo(pellet.pos);
+    if (dist < radius) {
+      pellet.eaten = true;
+      return true;
+    }
+    return false;
+  }
+
   update(dt) {
     this.wobble += dt * 6;
 

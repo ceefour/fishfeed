@@ -41,3 +41,11 @@ session.
 - `dt` is clamped to avoid large-frame jumps.
 - Deterministic-ish random injected via `random` param (default `Math.random`)
   to permit testing.
+
+## Testing
+
+- Unit tests via Vitest (`npm test`): `src/fish.test.js`, `src/food.test.js`.
+- Tests cover fish target acquisition, steering, target clearing, bounds
+  clamping, eating; and food sinking, floor clamping, lifetime, disposal.
+- The eat interaction is a pure method (`Fish.tryEat`) so it is testable
+  without a DOM/canvas; browser rendering is verified manually via `npm run dev`.

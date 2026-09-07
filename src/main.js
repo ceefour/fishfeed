@@ -69,10 +69,7 @@ function spawnFood(position) {
 }
 
 function eatIfClose(f, pellet) {
-  if (pellet.eaten) return;
-  const dist = f.mesh.position.distanceTo(pellet.mesh.position);
-  if (dist < 1.0) {
-    pellet.eaten = true;
+  if (f.tryEat(pellet)) {
     score += 1;
     updateScore();
   }
